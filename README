@@ -1,0 +1,12 @@
+Projekt na SPOP lato 2016
+
+Budowanie:
+  cabal sandbox init
+  cabal install --dependencies-only
+  cabal build
+
+Uruchamianie:
+  ./dist/build/piramidy/piramidy case1
+
+Testy:
+  runhaskell test.hs
