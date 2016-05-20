@@ -1,0 +1,10 @@
+dla ograniczenia O na początku wiersza plnaszy wielkości N:
+* N może stać na na Otej pozycji, N-1 na O-1ej, ..., N-k na 1ej
+* jeśli O = 1 to na pierwszej pozycji może stać tylko N.
+
+jeśli w jakiejś komórce jest jednoznaczne rozwiązanie k, to
+k nie może stać w odpowiadającym wierszu i kolumnie.
+
+jeśli jakaś liczba w komórce nie występuje w żadnej innej
+komórce w wierszu lub kolumnie to jest rozwiązaniem dla tej
+komórki
