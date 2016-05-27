@@ -1,13 +1,13 @@
 module Solver (Piramidy (Piramidy), solve) where
 import Control.Monad
 import Data.List
+import Data.Map as Map
 import Data.Maybe
-import Debug.Trace
 
 data Piramidy = Piramidy [Maybe Int] [Maybe Int] [Maybe Int] [Maybe Int]
   deriving (Show, Read)
 
-type PartialBoard = [(Int, Int, Int)]
+type PartialBoard = ([[Int]], Map.Map Int [Int])
 data Partial = Partial Int PartialBoard (Int, Int) deriving Show
 
 solve :: Piramidy -> Maybe [[Int]]
@@ -22,20 +22,20 @@ solve (Piramidy above below left right) =
       value `elem` row ||
       value `elem` column ||
       (if y == n-1
-        then rejectByEdgeConstraint (above !! x) (column ++ [value]) ||
-             rejectByEdgeConstraint (below !! x) (value:reverse (column))
+        then rejectByEdgeConstraint (below !! x) (value:column) ||
+             rejectByEdgeConstraint (above !! x) (reverse $ value:column)
         else False) ||
       (if x == n-1
-        then rejectByEdgeConstraint (left !! y) (row ++ [value]) ||
-             rejectByEdgeConstraint (right !! y) (value:reverse row)
+        then rejectByEdgeConstraint (right !! y) (value:row) ||
+             rejectByEdgeConstraint (left !! y) (reverse $ value:row)
         else False)
 
-      where row = currentRow partial
-            column = currentColumn partial
+      where row = currentRow partial :: [Int]
+            column = currentColumn partial :: [Int]
             rejectByEdgeConstraint e r = not $ lineConstraintHolds e r
     apply p@(Partial n board pos) value =
       Partial n (addToBoard p value) (advance pos)
-    empty = Partial n [] (0, 0)
+    empty = Partial n (emptyBoard n) (0, 0)
     n = length above
 
 backtrack :: (a -> [b]) -> (a -> Bool) -> (a -> b -> Bool) ->
@@ -48,21 +48,24 @@ backtrack grow done reject apply partial = do
     then return partial'
     else backtrack grow done reject apply partial'
 
-extractRow board y =
-  map (\(_, _, v) -> v) $
-    sortBy (\(x, _, _) (x', _, _) -> compare x x') $ 
-    filter (\(_,y',_) -> y == y') board
-currentRow (Partial size board (x, y)) = extractRow board y
-currentColumn (Partial size board (x, y)) =
-  map (\(_, _, v) -> v) $ 
-    sortBy (\(_, y, _) (_, y', _) -> compare y y') $ 
-    filter (\(x',_,_) -> x == x') board
+currentRow :: Partial -> [Int]
+currentRow (Partial _ ([], _) _) = []
+currentRow (Partial _ _ (0, _)) = []
+currentRow (Partial _ (row:_, _) _) = row
+
+currentColumn :: Partial -> [Int]
+currentColumn (Partial size (_, columns) (x, _)) = columns Map.! x
+
 addToBoard :: Partial -> Int -> PartialBoard
-addToBoard (Partial size board (x, y)) value = (x,y,value):board
+addToBoard (Partial size (rows, columns) (0, _)) value =
+  ([value]:rows, adjust (value:) 0 columns)
+addToBoard (Partial size (row:rows, columns) (x, _)) value =
+  ((value:row):rows, adjust (value:) x columns)
+
+emptyBoard n = ([], Map.fromList [(i, []) | i <- [0..n-1]])
 
 extractSolution :: Partial -> [[Int]]
-extractSolution (Partial size board _) = 
-  map (extractRow board) [0..size-1]
+extractSolution (Partial size (rows, _) _) = reverse $ reverse <$> rows
 
 -- Check if a row or column adheres to a constraint on its
 -- beginning, i.e. do I see i pyramids from the point of list's
