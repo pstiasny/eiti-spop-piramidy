@@ -124,4 +124,4 @@ trySolve p onJust onNothing =
 
 return []  -- template haskell magic for quickcheck
 main =
-  $forAllProperties (quickCheckWithResult stdArgs {maxSize=6, maxSuccess=200})
+  $forAllProperties (quickCheckWithResult stdArgs {maxSize=7, maxSuccess=200})

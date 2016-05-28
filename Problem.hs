@@ -1,4 +1,5 @@
 module Problem where
+import Control.Monad
 import Data.List
 
 data Piramidy = Piramidy [Maybe Int] [Maybe Int] [Maybe Int] [Maybe Int]
@@ -29,3 +30,23 @@ constraintsHold (Piramidy above below left right) rows =
     zipWith lineConstraintHolds above columns ++
     zipWith lineConstraintHolds below (map reverse columns)
   where columns = transpose rows
+
+prettyPrint (Piramidy above below left right) solution =
+  case solution of
+    Nothing -> putStrLn "no solution"
+    Just rows -> do
+      putStr " "
+      forM_ above (putStr . prettyConstr)
+      putStrLn ""
+
+      forM_ (zip3 left rows right) $ \(l, row, r) -> do
+          putStr $ prettyConstr l
+          forM_ row (putStr . show)
+          putStrLn $ prettyConstr r
+
+      putStr " "
+      forM_ below (putStr . prettyConstr)
+      putStrLn ""
+
+  where prettyConstr (Nothing) = " "
+        prettyConstr (Just i) = show i
