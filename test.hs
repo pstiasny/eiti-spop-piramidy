@@ -3,6 +3,7 @@ import Data.Maybe
 import Data.List
 import Control.Monad
 import Test.QuickCheck
+import Problem
 import Solver
 
 instance Arbitrary Piramidy where
@@ -50,31 +51,6 @@ solvablePuzzle size = do
   let fullConstraints = contraintsFor board
   reduceConstraints fullConstraints
 
--- Check if a row or column adheres to a constraint on its
--- beginning, i.e. do I see i pyramids from the point of list's
--- beginning.  Always True if there is no constraint.
-lineConstraintHolds :: Maybe Int -> [Int] -> Bool
-lineConstraintHolds Nothing _ = True
-lineConstraintHolds (Just i) xs = lineConstraintFor xs == i
-
--- How many pyrmids can be seen from the point of list's beginning.
-lineConstraintFor :: [Int] -> Int
-lineConstraintFor line = inner 0 0 line
-  where inner _ i [] = i
-        inner max i (h:t) = if h > max then inner h (i+1) t
-                                       else inner max i t
-
--- Check if every row and column adheres to the constraints
--- on board's edges.
-constraintsHold :: Piramidy -> [[Int]] -> Bool
-constraintsHold (Piramidy above below left right) rows =
-  all id $
-    zipWith lineConstraintHolds left rows ++
-    zipWith lineConstraintHolds right (map reverse rows) ++
-    zipWith lineConstraintHolds above columns ++
-    zipWith lineConstraintHolds below (map reverse columns)
-  where columns = transpose rows
-
 isNonrepeatingLine xs = [1..length xs] \\ xs == []
 
 -- Find boards holding puzzle's constraints out of all
@@ -108,5 +84,4 @@ prop_solveReturnsLegalBoard =
 
 return []  -- template haskell magic for quickcheck
 main =
-  -- we will make maxSize larger once an efficient algorithm is implemented
-  $forAllProperties (quickCheckWithResult stdArgs {maxSize=5, maxSuccess=200})
+  $forAllProperties (quickCheckWithResult stdArgs {maxSize=6, maxSuccess=200})
