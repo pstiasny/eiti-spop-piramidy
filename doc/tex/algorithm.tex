@@ -1,0 +1,45 @@
+\section{Zastosowany algorytm}
+Zagadkę rozwiązujemy w dwóch etapach:
+\begin{enumerate}
+    \item W pierszym etapie eliminujemy podzbiór niedopuszczalnych
+          w komórkach piramid iterując po wszystkich ograniczeniach
+          na krawędzi zagadki.
+    \item W drugim etapie używamy backtrackingu generując częściowe
+          rozwiązania przez wstawianie do komórek przefiltrowane
+          w pierwszym etapie piramidy.
+\end{enumerate}
+
+O ile rozwiązanie zagadki jest możliwe jedynie za pomocą backtrackingu
+(lub nawet naiwnego pełnego przeszukiwania), zastosowanie dodatkowego
+etapu eliminacji pozwala na obcięcie znacznej części przestrzeni przeszukiwania
+a zatem znaczne szybsze znajdowanie rozwiązań dla zagadek nietrywialnych
+rozmiarów.
+
+\subsection{Eliminacja}
+Eliminacja rozwiązań niedopuszczalnych odbywa się wg następujących reguł:
+
+\begin{itemize}  
+  \setlength\itemsep{0.1em}
+
+  \item{W przypadku, gdy w danym wierszu widoczna jest tylko jedna piramida to najwyższa piramida musi stać na pierwszej pozycji. Jeśli mają być widoczne dwie, to najwyższa może stać najwcześniej na drugiej pozycji. W sytuacji gdy ograniczenie widoczności wynosi trzy, to najwyższa może stać najwcześniej na trzeciej, a kolejna od niej niższa na drugiej pozycji licząc od krawędzi na której występuje ograniczenie. Dla kolejnych wartości ograniczeń sposób postępowania jest analogiczny.}
+
+  \item{W sytuacji, gdy w jakiejś komórce jest jednoznaczne rozwiązanie X, to należy wyeliminować wartość X ze wszystkich komórek w wierszu oraz kolumnie do których należy komórka z rozwiązaniem, powtarzając proces rekurencyjnie dla zmienianych komórek.}
+
+\end{itemize}
+
+W kodzie implelmentację eliminacji można znaleźć w module {\texttt Elimination}.
+
+\subsection{Backtracking}
+W stworzonej implementacji algorytm znajdowania rozwiązania opiera swoje
+działanie na algorytmie z nawrotami (\textit{ang. backtracking}).  W kolejnych
+iteracjach rozbudowywane jest częsciowe rozwiązanie do momentu osiągnięcia
+pełnej planszy.  Przy tworzeniu kolejnych rozwiązań częściowych sprawdzana
+jest ich poprawność pod względem reguł gry.  Jeśli rozwiązanie częściowe
+jest niepoprawne, jest ono odrzucane i testujemy kolejną możliwość.  Jeśli
+wszystkie możliwe piramidy dla danej komórki zostały odrzucone, wracamy
+do poprzedniej komórki i kontynuujemy proces.
+
+W naszym rozwiązaniu zaimplementowaliśmy backtracking w monadzie listy
+w sposób inspirowany podejściem opisanym w \cite{backtracking}.
+
+W kodzie implelmentację backtrackingu można znaleźć w module {\texttt Solver}.
